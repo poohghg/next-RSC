@@ -12,13 +12,13 @@ export default function Home() {
             <h1>main</h1>
             <ul>
                 <li>
-                    <Link href="/seoul">s</Link>
+                    <Link href="/seoul">seoul</Link>
                 </li>
                 <li>
-                    <Link href="/newyork">s</Link>
+                    <Link href="/newyork">newyork</Link>
                 </li>
                 <li>
-                    <Link href="/london">s</Link>
+                    <Link href="/london">london</Link>
                 </li>
             </ul>
             <RevalidateButton tag="time" />
