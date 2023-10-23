@@ -3,6 +3,7 @@ import Link from 'next/link';
 import CurrentTime from '@/components/CurrentTime';
 import ReloadWrapper from '@/components/ReloadWrapper';
 import RevalidateButton from '@/components/RevalidateButton';
+import style from './page.module.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,7 +23,10 @@ export default function Home() {
                 </li>
             </ul>
             <RevalidateButton tag="time" />
-            <CurrentTime />
+            <p className={style.description}>no-cache</p>
+            <CurrentTime isCached={false} />
+            <p>cache</p>
+            <CurrentTime isCached={true} />
         </ReloadWrapper>
     );
 }

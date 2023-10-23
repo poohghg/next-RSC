@@ -14,10 +14,17 @@ export type Response = {
     dstActive: boolean;
 };
 
-export const getTime = async (timeZone: string = 'UTC'): Promise<Response> => {
+export const getTime = async (
+    isCached: boolean = true,
+    timeZone: string = 'UTC'
+): Promise<Response> => {
+    console.log('isCached', `time - ${isCached}`);
     const res = await fetch(
         `https://timeapi.io/api/Time/current/zone?timeZone=${timeZone}`,
-        { next: { tags: ['time'] }, cache: 'no-cache' }
+        {
+            next: { tags: [`time - ${isCached}`] },
+            cache: isCached ? 'force-cache' : 'no-cache',
+        }
     );
     if (!res.ok) throw new Error('시간 정보를 가져올 수 없습니다.');
 

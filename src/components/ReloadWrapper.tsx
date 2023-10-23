@@ -12,7 +12,9 @@ const ReloadWrapper = ({ children }: Props) => {
     const [state, setState] = useState(0);
 
     useEffect(() => {
-        router.refresh();
+        return () => {
+            router.refresh();
+        };
     }, []);
 
     return (
