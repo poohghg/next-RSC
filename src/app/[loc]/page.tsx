@@ -1,5 +1,3 @@
-import { string } from 'prop-types';
-import { useRouter, useSearchParams } from 'next/navigation';
 import HomeButton from '@/components/HomeButton';
 
 type Props = {
@@ -9,9 +7,6 @@ type Props = {
 };
 
 const DetailPage = ({ params: { loc } }: Props) => {
-    // const router = useRouter();
-    // const searchParams = useSearchParams();
-    // const isReload = searchParams.get('isReload');
     return (
         <>
             <h1>Detail Page</h1>
