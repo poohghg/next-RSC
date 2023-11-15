@@ -1,7 +1,7 @@
 const Parallel1 = () => {
     return (
         <>
-            <h1>Parallel1</h1>
+            <h1>Parallel111111</h1>
         </>
     );
 };

@@ -12,3 +12,10 @@ export async function POST(req: NextRequest) {
         status: 200,
     });
 }
+
+export async function GET(req: NextRequest) {
+    return NextResponse.json({
+        message: '재검증에 성공했습니다.',
+        status: 200,
+    });
+}

@@ -40,16 +40,16 @@ App router에는 페이지,공유 레이아웃, 및 템플릿을 쉽게 생성 �
 
 ```tsx
 export default function DashboardLayout({
-  children, // will be a page or nested layout
-}: {
+                                          children, // will be a page or nested layout
+                                        }: {
   children: React.ReactNode
 }) {
   return (
-    <section>
-      {/* Include shared UI here e.g. a header or sidebar */}
-      <nav></nav>
-      {children}
-    </section>
+          <section>
+            {/* Include shared UI here e.g. a header or sidebar */}
+            <nav></nav>
+            {children}
+          </section>
   )
 }
 ```
@@ -201,7 +201,7 @@ SSR시 일련의 단계
 - 이때 **스트리밍**을 사용하면 페이지의 HTML을 더 작은 청크로 나누고 점진적으로 해당 청크를 서버에서 클라이언트로 보낼 수 있다.
 - **스트리밍**은 각 구성 요소가 하나의 덩어리로 간주될 수 있기 때문에, 우선순위가 높거나 데이터에 의존적이지 않는 요소는 더 일찍 하이드레이션 할 수 있다.
 - [스트리밍은 TTFB(Time To First Byte)를](https://web.dev/ttfb/) 줄일 수 있으므로 긴 데이터 요청으로 인해 페이지 렌더링이 차단되는 것을 방지하려는 경우 특히 유용하다.
--  [첫 번째 콘텐츠가 포함된 페인트(FCP)](https://web.dev/first-contentful-paint/). 또한 [TTI(Time to Interactive)를 개선하는 데 도움이 된다.](https://developer.chrome.com/en/docs/lighthouse/performance/interactive/)
+- [첫 번째 콘텐츠가 포함된 페인트(FCP)](https://web.dev/first-contentful-paint/). 또한 [TTI(Time to Interactive)를 개선하는 데 도움이 된다.](https://developer.chrome.com/en/docs/lighthouse/performance/interactive/)
 
 ![스트리밍 없이 서버 렌더링](https://nextjs.org/_next/image?url=%2Fdocs%2Fdark%2Fserver-rendering-without-streaming.png&w=3840&q=75&dpl=dpl_FMGsYbamaCihTR7jyf43krGr3wQk)
 
@@ -224,7 +224,43 @@ SSR시 일련의 단계
 
 
 
-### 병렬 경로
+### 병렬 경로 ([Parallel Routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes))
 
 병렬 라우팅을 사용하면 동일한 레이아웃에서 하나 이상의 페이지를 동시에 또는 조건부로 렌더링할 수 있다.
+
+- 컴포넌트를 렌더링 하는거랑 뭐가 다르지?
+
+
+
+### 경로 차단([Intercepting Routes](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes))
+
+경로를 가로채어 현재 레이아웃 내 애플리케이션의 다른 부분에서 경로를 로드할 수 있습니다.이는 사용자가 다른 컨텍스트로 전환하지 않고도 경로의 내용을 표시하려는 경우 유용하다.
+
+
+
+### 라우터 핸들러
+
+라우터 핸들러를 사용하면 Web [Request](https://developer.mozilla.org/docs/Web/API/Request) and [Response](https://developer.mozilla.org/docs/Web/API/Response) APIs을 사용하는 custom request handlers을 만들수 있다.
+
+#### convention
+
+- 라우터 핸들러는 route 파일 내부에 생성 되어야 한다.
+- 라우터 핸들러는 중첩되어 사용 될 수 있다.
+
+#### Caching
+
+- GET 요청에 대한 응답은 기본적으로 캐싱된다.
+- 캐싱 해제 방법
+  - `Request`메소드 와 함께 객체를 사용합니다 `GET`.
+  - 다른 HTTP 메서드를 사용합니다.
+  - 및 와 같은 [동적 기능을](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#dynamic-functions) 사용합니다 .`cookies``headers`
+  - 세그먼트 [구성 옵션은](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#segment-config-options) 동적 모드를 수동으로 지정합니다.
+
+
+
+
+
+
+
+
 
