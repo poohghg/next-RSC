@@ -2,7 +2,7 @@
 
 ---
 
-## 1.[경로 생성](https://nextjs.org/docs/app/building-your-application/routing/defining-routes#creating-routes)
+##  1.Routing
 
 **Next.js는 폴더를** 사용하여 경로를 정의하는 파일 시스템 기반 라우터를 사용합니다 .
 
@@ -34,22 +34,20 @@ App router에는 페이지,공유 레이아웃, 및 템플릿을 쉽게 생성 �
 
 ### 레이아웃
 
-레이아웃은 여러 페이지에서 공유 될 수 있다. 레이아웃의 상태는 공유,유지 지면 다시 렌더링 하지 않는다.
-
-또한 레이아웃은 중첩될 수 있다.
+레이아웃은 여러 페이지에서 공유 될 수 있다. 레이아웃의 상태는 공유,유지 되며 다시 렌더링 하지 않는다. 또한 레이아웃은 중첩될 수 있다.
 
 ```tsx
 export default function DashboardLayout({
-                                          children, // will be a page or nested layout
-                                        }: {
+  children, // will be a page or nested layout
+}: {
   children: React.ReactNode
 }) {
   return (
-          <section>
-            {/* Include shared UI here e.g. a header or sidebar */}
-            <nav></nav>
-            {children}
-          </section>
+    <section>
+      {/* Include shared UI here e.g. a header or sidebar */}
+      <nav></nav>
+      {children}
+    </section>
   )
 }
 ```
@@ -197,6 +195,8 @@ SSR시 일련의 단계
 
 이러한 단계는 순차적이며 차단이 발생 할 수 있다. 모든 데이터 패칭 후 서버에서 페이지의 HTML 렌더링 후 클라이언트에서 해당 파일의 다운로드된 후에야 UI를 하이드레이션 할 수 있다.
 
+> 서버 컴포넌트는 서버에서 생성되는 스프리밍 파일이다?
+
 - 서버자원의 다운이 완료된 후 사용자에게 표기 되기에 여전히 속도가 느릴 수 있다.
 - 이때 **스트리밍**을 사용하면 페이지의 HTML을 더 작은 청크로 나누고 점진적으로 해당 청크를 서버에서 클라이언트로 보낼 수 있다.
 - **스트리밍**은 각 구성 요소가 하나의 덩어리로 간주될 수 있기 때문에, 우선순위가 높거나 데이터에 의존적이지 않는 요소는 더 일찍 하이드레이션 할 수 있다.
@@ -255,6 +255,238 @@ SSR시 일련의 단계
   - 다른 HTTP 메서드를 사용합니다.
   - 및 와 같은 [동적 기능을](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#dynamic-functions) 사용합니다 .`cookies``headers`
   - 세그먼트 [구성 옵션은](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#segment-config-options) 동적 모드를 수동으로 지정합니다.
+
+
+
+### Middleware
+
+미들에워는 요청이 완료되기전에 코드를 실행 시킬 수 있게한다. 요청에 기초하여 응답을 수정할 수 있다. 요청 또는 응답 헤더를 수정, rewriting, redirecting 함으로써.
+
+미들웨어는 캐시된 콘텐츠와 경로가 일치하기 전에 실행됩니다. 자세한 내용은 [일치하는 경로를](https://nextjs.org/docs/app/building-your-application/routing/middleware#matching-paths) 참조하세요 .
+
+#### convention
+
+- 미들웨어는 프로젝트 루트에 생성해야한다.
+
+#### [Matching Paths](https://nextjs.org/docs/app/building-your-application/routing/middleware#matching-paths)
+
+미들웨어는 모든 경로에 대해 호출된다, 호출 순서는 다음과 같다.
+
+1. `headers` from `next.config.js`
+2. `redirects` from `next.config.js`
+3. Middleware (`rewrites`, `redirects`, etc.)
+4. `beforeFiles` (`rewrites`) from `next.config.js`
+5. Filesystem routes (`public/`, `_next/static/`, `pages/`, `app/`, etc.)
+6. `afterFiles` (`rewrites`) from `next.config.js`
+7. Dynamic Routes (`/blog/[slug]`)
+8. `fallback` (`rewrites`) from `next.config.js`
+
+#### matcher
+
+`matcher`특정 경로에서 실행되도록 미들웨어를 필터링할 수 있습니다.
+
+```tsx
+// "/"으로 시작하여야함.
+export const config = {
+  matcher: ['/about/:path*', '/dashboard/:path*'],
+}
+```
+
+#### [NextResponse](https://nextjs.org/docs/app/building-your-application/routing/middleware#nextresponse)
+
+The `NextResponse` API allows you to:
+
+- `redirect` the incoming request to a different URL
+- `rewrite` the response by displaying a given URL
+- Set request headers for API Routes, `getServerSideProps`, and `rewrite` destinations
+- Set response cookies
+- Set response headers
+
+#### 라이플 사이클? 예전 자료
+
+1. Next Server가 GET 요청을 받는다.
+2. 요청에 맞는 Page를 찾는다.
+3. _app.js의 getInitialProps가 있다면 실행한다.
+4. Page Component의 getInitialProps가 있다면 실행한다. pageProps들을 받아온다.
+5. _document.js의 getInitialProps가 있다면 실행한다. pageProps들을 받아온다.
+6. 모든 props들을 구성하고, _app.js > page Component 순서로 rendering.
+7. 모든 Content를 구성하고 _document.js를 실행하여 html 형태로 출력한다.
+
+#### [쿠키 사용](https://nextjs.org/docs/app/building-your-application/routing/middleware#using-cookies)
+
+```tsx
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+ 
+                            
+}
+```
+
+#### [헤더 설정](https://nextjs.org/docs/app/building-your-application/routing/middleware#setting-headers)
+
+```tsx
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+ 
+export function middleware(request: NextRequest) {
+  // Clone the request headers and set a new header `x-hello-from-middleware1`
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-hello-from-middleware1', 'hello')
+ 
+  // You can also set request headers in NextResponse.rewrite
+  const response = NextResponse.next({
+    request: {
+      // New request headers
+      headers: requestHeaders,
+    },
+  })
+ 
+  // Set a new response header `x-hello-from-middleware2`
+  response.headers.set('x-hello-from-middleware2', 'hello')
+  return response
+}
+```
+
+___
+
+## 2.Data Fetching
+
+### 데이터 가져오기, 캐싱 및 재검증
+
+데이터 패칭은 애플리케이션의 핵심 부분이다.
+
+데이터를 가져올 수 있는 방법
+
+1. [서버에서`fetch`](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#fetching-data-on-the-server-with-fetch)
+2. [서버에서 타사 라이브러리 사용](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#fetching-data-on-the-server-with-third-party-libraries)
+3. [클라이언트에서 경로 핸들러를 통해](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#fetching-data-on-the-client-with-route-handlers)
+4. [클라이언트에서 타사 라이브러리를 사용](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#fetching-data-on-the-client-with-route-handlers) .
+
+#### Fetch
+
+Next.js는 기본 [`fetch`웹 API를 확장합니다.](https://developer.mozilla.org/docs/Web/API/Fetch_API)서버의 각 가져오기 요청에 대한 [캐싱](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#caching-data) 및 [재검증](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#revalidating-data) 동작을 구성할 수 있습니다 . React는 React 컴포넌트 트리를 렌더링하는 동안 가져오기 요청을 `fetch`자동으로 [메모하도록 확장됩니다.](https://nextjs.org/docs/app/building-your-application/data-fetching/patterns#fetching-data-where-its-needed)
+
+> You can use `fetch` with `async`/`await` in Server Components, in [Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers), and in [Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/forms-and-mutations).
+>
+> 클라이언트 컴포넌트에서 Next 제공 fetch라이브러리는 사용 할 수 없음.
+
+#### 데이터 캐싱
+
+캐싱은 데이터를 저장하므로 요청이 있을 때마다 데이터 소스에서 다시 가져올 필요가 없습니다.
+
+기본적으로 Next.js는 반환된 값을 서버의 [데이터 캐시](https://nextjs.org/docs/app/building-your-application/caching#data-cache)`fetch` 에 자동으로 캐시합니다. 이는 빌드 시 또는 요청 시 데이터를 가져오고, 캐시하고, 각 데이터 요청에서 재사용할 수 있음을 의미합니다.
+
+```tsx
+// 'force-cache' is the default, and can be omitted
+fetch('https://...', { cache: 'force-cache' })
+```
+
+> **`fetch` requests that use the `POST` method are also automatically cached. Unless it's inside a [Route Handler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) that uses the `POST` method, then it will not be cached.**
+>
+> 라우터 핸들러를 통한 POST요청 도 캐시 될 수 있다.
+
+### 데이터 재검증
+
+재검증은 데이터 캐시를 제거하고 최신 데이터를 다시 가져오는 프로세스입니다. 이는 데이터가 변경되어 최신 정보를 표시하려는 경우에 유용합니다.
+
+캐시된 데이터는 다음 두 가지 방법으로 유효성을 다시 검사할 수 있습니다.
+
+- **시간 기반 재검증** : 일정 시간이 지나면 데이터를 자동으로 재검증합니다. 이는 자주 변경되지 않고 최신성이 중요하지 않은 데이터에 유용합니다.
+- **주문형 재검증** : 이벤트(예: 양식 제출)를 기반으로 데이터를 수동으로 재검증합니다. 주문형 재검증에서는 태그 기반 또는 경로 기반 접근 방식을 사용하여 데이터 그룹을 한 번에 재검증할 수 있습니다. 이는 가능한 한 빨리 최신 데이터를 표시하려는 경우에 유용합니다(예: 헤드리스 CMS의 콘텐츠가 업데이트되는 경우).
+
+```tsx
+fetch('https://...', { next: { revalidate: 3600 } })
+export const revalidate = 3600 // revalidate at most every hour
+```
+
+### 클라이언트에서 라우트 핸들러를 통한 패칭
+
+만약 클라이언트에서 민감함 정보가 포함하여 요청시 서버에서 실행되는 라우트 핸들러를 사용 할 수 있다.
+
+```
+Server Components and Route Handlers
+
+Since Server Components render on the server, you don't need to call a Route Handler from a Server Component to fetch data. Instead, you can fetch the data directly inside the Server Component.
+```
+
+### 데이터 패칭 패턴
+
+#### [Fetching Data on the Server](https://nextjs.org/docs/app/building-your-application/data-fetching/patterns#fetching-data-on-the-server)
+
+Whenever possible, we recommend fetching data on the server. This allows you to:
+
+- Have direct access to backend data resources (e.g. databases).
+- Keep your application more secure by preventing sensitive information, such as access tokens and API keys, from being exposed to the client.
+- Fetch data and render in the same environment. This reduces both the back-and-forth communication between client and server, as well as the [work on the main thread](https://vercel.com/blog/how-react-18-improves-application-performance) on the client.
+- Perform multiple data fetches with single round-trip instead of multiple individual requests on the client.
+- Reduce client-server [waterfalls](https://nextjs.org/docs/app/building-your-application/data-fetching/patterns#parallel-and-sequential-data-fetching).
+- Depending on your region, data fetching can also happen closer to your data source, reducing latency and improving performance.
+
+You can fetch data on the server using Server Components, [Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers), and [Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/forms-and-mutations).
+
+### [Fetching Data Where It's Needed](https://nextjs.org/docs/app/building-your-application/data-fetching/patterns#fetching-data-where-its-needed)
+
+If you need to use the same data (e.g. current user) in multiple components in a tree, you do not have to fetch data globally, nor forward props between components. Instead, you can use `fetch` or React `cache` in the component that needs the data without worrying about the performance implications of making multiple requests for the same data.
+
+This is possible because `fetch` requests are automatically memoized. Learn more about [request memoization](https://nextjs.org/docs/app/building-your-application/caching#request-memoization)
+
+> **Good to know**: This also applies to layouts, since it's not possible to pass data between a parent layout and its children.
+
+### 병렬 및 순차 데이터 가져오기 ([Parallel and Sequential Data Fetching](https://nextjs.org/docs/app/building-your-application/data-fetching/patterns#parallel-and-sequential-data-fetching))
+
+![순차 및 병렬 데이터 가져오기](https://nextjs.org/_next/image?url=%2Fdocs%2Fdark%2Fsequential-parallel-data-fetching.png&w=3840&q=75&dpl=dpl_2HRzcyVz924hNJUyo2USas69GBgM)
+
+##### 순차적 데이터 가져오기
+
+##### 순차적 데이터 가져오기를 사용하면 경로의 요청이 서로 종속되므로 폭포가 생성된다.이것은 의도적으로 이전 요청의 결과값을 사용할때 유용 할 수 있다. 하지만 의도된 동작이 아니라면 UI로딩 시간이 길어 질 수 있다.
+
+> **데이터 요청 차단:**
+>
+> 폭포수를 방지하는 또 다른 접근 방식은 애플리케이션의 루트에서 전역적으로 데이터를 가져오는 것입니다. 하지만 이렇게 하면 데이터 로드가 완료될 때까지 그 아래의 모든 경로 세그먼트에 대한 렌더링이 차단됩니다. Either you have the entire data for your page or application, or none.
+>
+> 모든 가져오기 요청은 경계 에 래핑되거나 사용되지 `await`않는 한 그 아래의 전체 트리에 대한 렌더링 및 데이터 가져오기를 차단합니다 . [또 다른 대안은 병렬 데이터 가져오기](https://nextjs.org/docs/app/building-your-application/data-fetching/patterns#parallel-data-fetching) 또는 [사전 로드 패턴을](https://nextjs.org/docs/app/building-your-application/data-fetching/patterns#preloading-data) 사용하는 것입니다 .`<Suspense>``loading.js`
+
+##### 병렬 데이터 가져오기
+
+데이터를 병렬로 가져오려면 데이터를 사용하는 구성 요소 외부에서 요청을 정의한 다음 구성 요소 내부에서 호출하여 요청을 적극적으로 시작할 수 있다. 이렇게 하면 두 요청을 병렬로 시작하여 시간이 절약된다. 하지만 두 Promise의 요청 처리가 될 때까지 기다려야한다.
+
+```tsx
+import Albums from './albums'
+ 
+async function getArtist(username: string) {
+  const res = await fetch(`https://api.example.com/artist/${username}`)
+  return res.json()
+}
+ 
+async function getArtistAlbums(username: string) {
+  const res = await fetch(`https://api.example.com/artist/${username}/albums`)
+  return res.json()
+}
+ 
+export default async function Page({
+  params: { username },
+}: {
+  params: { username: string }
+}) {
+  // Initiate both requests in parallel
+  const artistData = getArtist(username)
+  const albumsData = getArtistAlbums(username)
+ 
+  // Wait for the promises to resolve
+  const [artist, albums] = await Promise.all([artistData, albumsData])
+ 
+  return (
+    <>
+      <h1>{artist.name}</h1>
+      <Albums list={albums}></Albums>
+    </>
+  )
+}
+```
+
+사용자 경험을 향상시키기 위해 [Suspense Boundary를](https://nextjs.org/docs/app/building-your-application/routing/loading-ui-and-streaming) 추가하여 렌더링 작업을 분할하고 결과의 일부를 최대한 빨리 표시할 수 있습니다.
+
+
 
 
 

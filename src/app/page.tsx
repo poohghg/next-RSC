@@ -4,6 +4,7 @@ import CurrentTime from '@/components/CurrentTime';
 import ReloadWrapper from '@/components/ReloadWrapper';
 import RevalidateButton from '@/components/RevalidateButton';
 import style from './page.module.css';
+import TestClient from '@/components/TestClient';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,8 +28,8 @@ export default function Home() {
             <CurrentTime isCached={false} />
             <p>cache</p>
             <CurrentTime isCached={true} />
+            <br />
+            {/*<TestClient />*/}
         </ReloadWrapper>
     );
 }
-
-
