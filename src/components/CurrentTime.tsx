@@ -1,4 +1,5 @@
 import { getTime } from '@/utils/getTime';
+import { cookies } from 'next/headers';
 
 type Props = {
     isCached: boolean;

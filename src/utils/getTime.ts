@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers';
+
 export type Response = {
     year: number;
     month: number;
@@ -22,10 +24,9 @@ export const getTime = async (
         `https://timeapi.io/api/Time/current/zone?timeZone=${timeZone}`,
         {
             next: { tags: [`time - ${isCached}`] },
-            cache: isCached ? 'force-cache' : 'no-store',
+            cache: isCached ? undefined : 'no-cache',
         }
     );
     if (!res.ok) throw new Error('시간 정보를 가져올 수 없습니다.');
-
     return res.json();
 };

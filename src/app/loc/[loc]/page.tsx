@@ -1,4 +1,5 @@
 import HomeButton from '@/components/HomeButton';
+import CurrentTime from '@/components/CurrentTime';
 
 type Props = {
     params: {
@@ -12,6 +13,7 @@ const DetailPage = ({ params: { loc } }: Props) => {
             <h1>Detail Page</h1>
             <p>loc : {loc}</p>
             <HomeButton />
+            <CurrentTime isCached={false} />
         </>
     );
 };
