@@ -10,8 +10,9 @@ type Props = {
 const ReloadWrapper = ({ children }: Props) => {
     const router = useRouter();
     const [state, setState] = useState(0);
-
+    // 페이지 라우터을 변경할 때마다 클라이언트 RSC 패이로드를 최신화 해야 한다.
     useEffect(() => {
+        router.refresh();
         return () => {
             // router.refresh();
         };
